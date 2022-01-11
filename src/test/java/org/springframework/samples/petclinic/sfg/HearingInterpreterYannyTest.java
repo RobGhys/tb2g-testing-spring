@@ -11,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 
 @ActiveProfiles("base-test")
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {BaseConfig.class, LaurelConfig.class})
-public class HearingInterpreterTest {
+@ContextConfiguration(classes = {BaseConfig.class, YannyConfig.class})
+public class HearingInterpreterYannyTest {
 
     @Autowired
     HearingInterpreter hearingInterpreter;
@@ -21,6 +21,6 @@ public class HearingInterpreterTest {
     @Test
     public void whatIHeard() {
         String word = hearingInterpreter.whatIHeard();
-        assertEquals("Laurel", word);
+        assertEquals("Yanny", word);
     }
 }
