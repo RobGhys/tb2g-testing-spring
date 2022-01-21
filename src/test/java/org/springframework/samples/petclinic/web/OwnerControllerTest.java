@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.web;
 
 import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +17,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.reset;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -43,6 +46,11 @@ class OwnerControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(ownerController).build();
     }
 
+    @AfterEach
+    void tearDown() {
+        reset(clinicService);
+    }
+
     @Test
     void returnListOfOwnersTest() throws Exception {
         // Given
@@ -55,6 +63,25 @@ class OwnerControllerTest {
         then(clinicService).should().findOwnerByLastName(stringArgumentCaptor.capture());
 
         assertThat(stringArgumentCaptor.getValue()).isEqualToIgnoringCase("");
+    }
+
+    @Test
+    void findOwnerOneResultTest() throws Exception {
+        Owner justOne = new Owner();
+        final String findJustOne = "FindJustOne";
+        justOne.setId(1);
+        justOne.setLastName(findJustOne);
+        
+        // Given
+        given(clinicService.findOwnerByLastName(findJustOne)).willReturn(Lists.newArrayList(justOne));
+
+        mockMvc.perform(get("/owners")
+                        .param("lastName", findJustOne))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/1"));
+
+        then(clinicService).should().findOwnerByLastName(anyString());
+
     }
 
     @Test
